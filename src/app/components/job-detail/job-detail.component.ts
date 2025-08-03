@@ -1,17 +1,17 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { JobService } from '../../services/job.service';
-import { AuthService } from '../../services/auth.service';
-import { Job, JobProposal } from '../../models/job.model';
+import { Component, inject, signal, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { JobService } from "../../services/job.service";
+import { AuthService } from "../../services/auth.service";
+import { Job, JobProposal, ProposalStatus } from "../../models/job.model";
 
 @Component({
-  selector: 'app-job-detail',
+  selector: "app-job-detail",
   standalone: true,
   imports: [CommonModule, RouterLink, ReactiveFormsModule],
-  templateUrl: './job-detail.component.html',
-  styleUrl: './job-detail.component.scss'
+  templateUrl: "./job-detail.component.html",
+  styleUrl: "./job-detail.component.scss",
 })
 export class JobDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -26,11 +26,11 @@ export class JobDetailComponent implements OnInit {
   proposalForm = this.fb.group({
     proposedAmount: [0, [Validators.required, Validators.min(1)]],
     deliveryTime: [1, [Validators.required, Validators.min(1)]],
-    coverLetter: ['', [Validators.required, Validators.minLength(50)]]
+    coverLetter: ["", [Validators.required, Validators.minLength(50)]],
   });
 
   ngOnInit(): void {
-    const jobId = this.route.snapshot.paramMap.get('id');
+    const jobId = this.route.snapshot.paramMap.get("id");
     if (jobId) {
       const foundJob = this.jobService.getJobById(jobId);
       this.job.set(foundJob || null);
@@ -47,26 +47,27 @@ export class JobDetailComponent implements OnInit {
   submitProposal(): void {
     const currentJob = this.job();
     const user = this.currentUser();
-    
+
     if (this.proposalForm.valid && currentJob && user) {
       const formData = this.proposalForm.value;
-      
+
       this.jobService.submitProposal({
         jobId: currentJob.id,
         freelancerId: user.id,
         freelancerName: user.fullName,
         proposedAmount: formData.proposedAmount!,
         deliveryTime: formData.deliveryTime!,
-        coverLetter: formData.coverLetter!
+        coverLetter: formData.coverLetter!,
+        status: ProposalStatus.PENDING,
       });
 
       // Update the local job data
       const updatedJob = this.jobService.getJobById(currentJob.id);
       this.job.set(updatedJob || null);
-      
+
       this.proposalForm.reset();
       this.showProposalForm.set(false);
-      alert('Proposal submitted successfully!');
+      alert("Proposal submitted successfully!");
     }
   }
 
@@ -74,31 +75,31 @@ export class JobDetailComponent implements OnInit {
     const currentJob = this.job();
     if (currentJob) {
       this.jobService.acceptProposal(currentJob.id, proposalId);
-      
+
       // Update the local job data
       const updatedJob = this.jobService.getJobById(currentJob.id);
       this.job.set(updatedJob || null);
-      
-      alert('Proposal accepted! The freelancer has been notified.');
+
+      alert("Proposal accepted! The freelancer has been notified.");
     }
   }
 
   getCategoryIcon(category: string): string {
     const categoryMap: { [key: string]: string } = {
-      'word-processing': '📝',
-      'excel-data-entry': '📊',
-      'design': '🎨',
-      'typesetting': '📄'
+      "word-processing": "📝",
+      "excel-data-entry": "📊",
+      design: "🎨",
+      typesetting: "📄",
     };
-    return categoryMap[category] || '📋';
+    return categoryMap[category] || "📋";
   }
 
   formatCategory(category: string): string {
     const categoryMap: { [key: string]: string } = {
-      'word-processing': 'Word Processing',
-      'excel-data-entry': 'Excel & Data Entry',
-      'design': 'Design',
-      'typesetting': 'Typesetting'
+      "word-processing": "Word Processing",
+      "excel-data-entry": "Excel & Data Entry",
+      design: "Design",
+      typesetting: "Typesetting",
     };
     return categoryMap[category] || category;
   }
@@ -106,18 +107,20 @@ export class JobDetailComponent implements OnInit {
   hasUserProposed(): boolean {
     const user = this.currentUser();
     const currentJob = this.job();
-    
+
     if (!user || !currentJob) return false;
-    
-    return currentJob.proposals.some(proposal => proposal.freelancerId === user.id);
+
+    return currentJob.proposals.some(
+      (proposal) => proposal.freelancerId === user.id
+    );
   }
 
   isJobOwner(): boolean {
     const user = this.currentUser();
     const currentJob = this.job();
-    
+
     if (!user || !currentJob) return false;
-    
+
     return currentJob.clientId === user.id;
   }
 }

@@ -1,258 +1,322 @@
 <div class="profile-page">
   <div class="container">
     @if (currentUser()) {
-      <div class="profile-header">
-        <div class="profile-info">
-          <div class="profile-avatar">
-            <img 
-              [src]="currentUser()?.profileImage || 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg'" 
-              [alt]="currentUser()?.fullName"
-            />
+    <div class="profile-header">
+      <div class="profile-info">
+        <div class="profile-avatar">
+          <img
+            [src]="
+              currentUser()?.profileImage ||
+              'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg'
+            "
+            [alt]="currentUser()?.fullName"
+          />
+        </div>
+        <div class="profile-details">
+          <h1>{{ currentUser()?.fullName }}</h1>
+          <p class="profile-bio">
+            {{ currentUser()?.bio || "No bio added yet" }}
+          </p>
+          <div class="profile-stats">
+            <div class="stat">
+              <span class="stat-value">{{ currentUser()?.rating || 0 }}</span>
+              <span class="stat-label">Rating</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">{{
+                currentUser()?.completedJobs || 0
+              }}</span>
+              <span class="stat-label">Jobs Completed</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">{{
+                currentUser()?.skills?.length || 0
+              }}</span>
+              <span class="stat-label">Skills</span>
+            </div>
           </div>
-          <div class="profile-details">
-            <h1>{{ currentUser()?.fullName }}</h1>
-            <p class="profile-bio">{{ currentUser()?.bio || 'No bio added yet' }}</p>
-            <div class="profile-stats">
-              <div class="stat">
-                <span class="stat-value">{{ currentUser()?.rating || 0 }}</span>
-                <span class="stat-label">Rating</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">{{ currentUser()?.completedJobs || 0 }}</span>
-                <span class="stat-label">Jobs Completed</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">{{ currentUser()?.skills.length || 0 }}</span>
-                <span class="stat-label">Skills</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-tabs">
+      <button
+        (click)="setActiveTab('overview')"
+        [class.active]="activeTab() === 'overview'"
+        class="tab-button"
+      >
+        Overview
+      </button>
+      <button
+        (click)="setActiveTab('experience')"
+        [class.active]="activeTab() === 'experience'"
+        class="tab-button"
+      >
+        Experience
+      </button>
+      <button
+        (click)="setActiveTab('portfolio')"
+        [class.active]="activeTab() === 'portfolio'"
+        class="tab-button"
+      >
+        Portfolio
+      </button>
+      <button
+        (click)="setActiveTab('settings')"
+        [class.active]="activeTab() === 'settings'"
+        class="tab-button"
+      >
+        Settings
+      </button>
+    </div>
+
+    <div class="profile-content">
+      @switch (activeTab()) { @case ('overview') {
+      <div class="overview-tab">
+        <div class="grid grid-cols-2">
+          <div class="card">
+            <h3>Skills</h3>
+            <div class="skills-list">
+              @for (skill of currentUser()?.skills; track skill) {
+              <span class="skill-tag">{{ skill }}</span>
+              } @empty {
+              <p class="empty-state">No skills added yet</p>
+              }
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Recent Activity</h3>
+            <div class="activity-list">
+              <div class="activity-item">
+                <span class="activity-text">Joined FreelanceHub</span>
+                <span class="activity-date">{{
+                  currentUser()?.createdAt | date : "short"
+                }}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <div class="profile-tabs">
-        <button 
-          (click)="setActiveTab('overview')" 
-          [class.active]="activeTab() === 'overview'"
-          class="tab-button"
-        >
-          Overview
-        </button>
-        <button 
-          (click)="setActiveTab('experience')" 
-          [class.active]="activeTab() === 'experience'"
-          class="tab-button"
-        >
-          Experience
-        </button>
-        <button 
-          (click)="setActiveTab('portfolio')" 
-          [class.active]="activeTab() === 'portfolio'"
-          class="tab-button"
-        >
-          Portfolio
-        </button>
-        <button 
-          (click)="setActiveTab('settings')" 
-          [class.active]="activeTab() === 'settings'"
-          class="tab-button"
-        >
-          Settings
-        </button>
-      </div>
-
-      <div class="profile-content">
-        @switch (activeTab()) {
-          @case ('overview') {
-            <div class="overview-tab">
-              <div class="grid grid-cols-2">
-                <div class="card">
-                  <h3>Skills</h3>
-                  <div class="skills-list">
-                    @for (skill of currentUser()?.skills; track skill) {
-                      <span class="skill-tag">{{ skill }}</span>
-                    }
-                    @empty {
-                      <p class="empty-state">No skills added yet</p>
-                    }
-                  </div>
-                </div>
-
-                <div class="card">
-                  <h3>Recent Activity</h3>
-                  <div class="activity-list">
-                    <div class="activity-item">
-                      <span class="activity-text">Joined FreelanceHub</span>
-                      <span class="activity-date">{{ currentUser()?.createdAt | date:'short' }}</span>
-                    </div>
-                  </div>
-                </div>
+      } @case ('experience') {
+      <div class="experience-tab">
+        <div class="card">
+          <h3>Add Work Experience</h3>
+          <form
+            [formGroup]="experienceForm"
+            (ngSubmit)="addExperience()"
+            class="experience-form"
+          >
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Job Title</label>
+                <input type="text" formControlName="title" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Company</label>
+                <input
+                  type="text"
+                  formControlName="company"
+                  class="form-input"
+                />
               </div>
             </div>
-          }
 
-          @case ('experience') {
-            <div class="experience-tab">
-              <div class="card">
-                <h3>Add Work Experience</h3>
-                <form [formGroup]="experienceForm" (ngSubmit)="addExperience()" class="experience-form">
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label class="form-label">Job Title</label>
-                      <input type="text" formControlName="title" class="form-input" />
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">Company</label>
-                      <input type="text" formControlName="company" class="form-input" />
-                    </div>
-                  </div>
-                  
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label class="form-label">Start Date</label>
-                      <input type="date" formControlName="startDate" class="form-input" />
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">End Date</label>
-                      <input type="date" formControlName="endDate" class="form-input" />
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="checkbox-label">
-                      <input type="checkbox" formControlName="current" />
-                      Currently working here
-                    </label>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <textarea formControlName="description" class="form-input" rows="3"></textarea>
-                  </div>
-
-                  <button type="submit" class="btn btn-primary" [disabled]="!experienceForm.valid">
-                    Add Experience
-                  </button>
-                </form>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Start Date</label>
+                <input
+                  type="date"
+                  formControlName="startDate"
+                  class="form-input"
+                />
               </div>
-
-              @if (currentUser()?.experience.length) {
-                <div class="experience-list">
-                  @for (exp of currentUser()?.experience; track exp.id) {
-                    <div class="experience-card">
-                      <div class="experience-header">
-                        <h4>{{ exp.title }}</h4>
-                        <button (click)="removeExperience(exp.id)" class="btn-remove">×</button>
-                      </div>
-                      <p class="company">{{ exp.company }}</p>
-                      <p class="duration">
-                        {{ exp.startDate | date:'MMM yyyy' }} - 
-                        {{ exp.current ? 'Present' : (exp.endDate | date:'MMM yyyy') }}
-                      </p>
-                      @if (exp.description) {
-                        <p class="description">{{ exp.description }}</p>
-                      }
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          }
-
-          @case ('portfolio') {
-            <div class="portfolio-tab">
-              <div class="card">
-                <h3>Add Portfolio Item</h3>
-                <form [formGroup]="portfolioForm" (ngSubmit)="addPortfolioItem()" class="portfolio-form">
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label class="form-label">Title</label>
-                      <input type="text" formControlName="title" class="form-input" />
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">Category</label>
-                      <select formControlName="category" class="form-input">
-                        <option value="">Select category</option>
-                        <option value="word-processing">Word Processing</option>
-                        <option value="excel-data-entry">Excel & Data Entry</option>
-                        <option value="design">Design</option>
-                        <option value="typesetting">Typesetting</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <textarea formControlName="description" class="form-input" rows="3"></textarea>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">File URL (optional)</label>
-                    <input type="url" formControlName="fileUrl" class="form-input" />
-                  </div>
-
-                  <button type="submit" class="btn btn-primary" [disabled]="!portfolioForm.valid">
-                    Add Portfolio Item
-                  </button>
-                </form>
-              </div>
-
-              @if (currentUser()?.portfolio.length) {
-                <div class="portfolio-grid">
-                  @for (item of currentUser()?.portfolio; track item.id) {
-                    <div class="portfolio-card">
-                      <div class="portfolio-header">
-                        <h4>{{ item.title }}</h4>
-                        <button (click)="removePortfolioItem(item.id)" class="btn-remove">×</button>
-                      </div>
-                      <p class="portfolio-category">{{ item.category }}</p>
-                      <p class="portfolio-description">{{ item.description }}</p>
-                      @if (item.fileUrl) {
-                        <a [href]="item.fileUrl" target="_blank" class="portfolio-link">View File</a>
-                      }
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          }
-
-          @case ('settings') {
-            <div class="settings-tab">
-              <div class="card">
-                <h3>Profile Settings</h3>
-                <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="settings-form">
-                  <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" formControlName="fullName" class="form-input" />
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">Bio</label>
-                    <textarea formControlName="bio" class="form-input" rows="4" 
-                      placeholder="Tell us about yourself and your expertise..."></textarea>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">Skills (comma separated)</label>
-                    <input type="text" formControlName="skills" class="form-input" 
-                      placeholder="Excel, Word Processing, Data Entry" />
-                  </div>
-
-                  <button type="submit" class="btn btn-primary" [disabled]="!profileForm.valid">
-                    Update Profile
-                  </button>
-                </form>
+              <div class="form-group">
+                <label class="form-label">End Date</label>
+                <input
+                  type="date"
+                  formControlName="endDate"
+                  class="form-input"
+                />
               </div>
             </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="current" />
+                Currently working here
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea
+                formControlName="description"
+                class="form-input"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="!experienceForm.valid"
+            >
+              Add Experience
+            </button>
+          </form>
+        </div>
+
+        @if (currentUser()?.experience?.length) {
+        <div class="experience-list">
+          @for (exp of currentUser()?.experience; track exp.id) {
+          <div class="experience-card">
+            <div class="experience-header">
+              <h4>{{ exp.title }}</h4>
+              <button (click)="removeExperience(exp.id)" class="btn-remove">
+                ×
+              </button>
+            </div>
+            <p class="company">{{ exp.company }}</p>
+            <p class="duration">
+              {{ exp.startDate | date : "MMM yyyy" }} -
+              {{ exp.current ? "Present" : (exp.endDate | date : "MMM yyyy") }}
+            </p>
+            @if (exp.description) {
+            <p class="description">{{ exp.description }}</p>
+            }
+          </div>
           }
+        </div>
         }
       </div>
-    } @else {
-      <div class="auth-required">
-        <h2>Please sign in to view your profile</h2>
-        <a routerLink="/auth" class="btn btn-primary">Sign In</a>
+      } @case ('portfolio') {
+      <div class="portfolio-tab">
+        <div class="card">
+          <h3>Add Portfolio Item</h3>
+          <form
+            [formGroup]="portfolioForm"
+            (ngSubmit)="addPortfolioItem()"
+            class="portfolio-form"
+          >
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Title</label>
+                <input type="text" formControlName="title" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <select formControlName="category" class="form-input">
+                  <option value="">Select category</option>
+                  <option value="word-processing">Word Processing</option>
+                  <option value="excel-data-entry">Excel & Data Entry</option>
+                  <option value="design">Design</option>
+                  <option value="typesetting">Typesetting</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea
+                formControlName="description"
+                class="form-input"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">File URL (optional)</label>
+              <input type="url" formControlName="fileUrl" class="form-input" />
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="!portfolioForm.valid"
+            >
+              Add Portfolio Item
+            </button>
+          </form>
+        </div>
+
+        @if (currentUser()?.portfolio?.length) {
+        <div class="portfolio-grid">
+          @for (item of currentUser()?.portfolio; track item.id) {
+          <div class="portfolio-card">
+            <div class="portfolio-header">
+              <h4>{{ item.title }}</h4>
+              <button (click)="removePortfolioItem(item.id)" class="btn-remove">
+                ×
+              </button>
+            </div>
+            <p class="portfolio-category">{{ item.category }}</p>
+            <p class="portfolio-description">{{ item.description }}</p>
+            @if (item.fileUrl) {
+            <a [href]="item.fileUrl" target="_blank" class="portfolio-link"
+              >View File</a
+            >
+            }
+          </div>
+          }
+        </div>
+        }
       </div>
+      } @case ('settings') {
+      <div class="settings-tab">
+        <div class="card">
+          <h3>Profile Settings</h3>
+          <form
+            [formGroup]="profileForm"
+            (ngSubmit)="updateProfile()"
+            class="settings-form"
+          >
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input
+                type="text"
+                formControlName="fullName"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Bio</label>
+              <textarea
+                formControlName="bio"
+                class="form-input"
+                rows="4"
+                placeholder="Tell us about yourself and your expertise..."
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Skills (comma separated)</label>
+              <input
+                type="text"
+                formControlName="skills"
+                class="form-input"
+                placeholder="Excel, Word Processing, Data Entry"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="!profileForm.valid"
+            >
+              Update Profile
+            </button>
+          </form>
+        </div>
+      </div>
+      } }
+    </div>
+    } @else {
+    <div class="auth-required">
+      <h2>Please sign in to view your profile</h2>
+      <a routerLink="/auth" class="btn btn-primary">Sign In</a>
+    </div>
     }
   </div>
 </div>

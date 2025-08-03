@@ -50,8 +50,12 @@ export class JobsComponent {
     );
   }
 
-  filterByCategory(category: JobCategory | 'all'): void {
-    this.selectedCategory.set(category);
+  filterByCategory(category: string): void {
+    if (category === 'all') {
+      this.selectedCategory.set('all');
+    } else {
+      this.selectedCategory.set(category as JobCategory);
+    }
   }
 
   toggleJobForm(): void {
