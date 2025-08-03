@@ -1,0 +1,31 @@
+<header class="header">
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-content">
+        <div class="nav-brand">
+          <a routerLink="/home" class="brand-link">
+            <span class="brand-icon">💼</span>
+            <span class="brand-text">FreelanceHub</span>
+          </a>
+        </div>
+
+        <div class="nav-links">
+          <a routerLink="/home" routerLinkActive="active" class="nav-link">Home</a>
+          <a routerLink="/jobs" routerLinkActive="active" class="nav-link">Browse Jobs</a>
+          
+          @if (currentUser()) {
+            <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Dashboard</a>
+            <a routerLink="/profile" routerLinkActive="active" class="nav-link">Profile</a>
+            
+            <div class="user-menu">
+              <span class="user-name">{{ currentUser()?.fullName }}</span>
+              <button (click)="logout()" class="btn btn-outline btn-sm">Logout</button>
+            </div>
+          } @else {
+            <a routerLink="/auth" routerLinkActive="active" class="btn btn-primary">Sign In</a>
+          }
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

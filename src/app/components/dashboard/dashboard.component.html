@@ -1,0 +1,151 @@
+<div class="dashboard-page">
+  <div class="container">
+    @if (currentUser()) {
+      <div class="dashboard-header">
+        <h1>Welcome back, {{ currentUser()?.fullName }}!</h1>
+        <p>Here's an overview of your activity on FreelanceHub</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">💼</div>
+          <div class="stat-content">
+            <h3>{{ stats().totalJobs }}</h3>
+            <p>Jobs Posted</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">📝</div>
+          <div class="stat-content">
+            <h3>{{ stats().activeProposals }}</h3>
+            <p>Active Proposals</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-content">
+            <h3>{{ stats().acceptedJobs }}</h3>
+            <p>Accepted Jobs</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-content">
+            <h3>${{ stats().earnings }}</h3>
+            <p>Total Earnings</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-content">
+        <div class="dashboard-section">
+          <div class="section-header">
+            <h2>My Posted Jobs</h2>
+            <a routerLink="/jobs" class="btn btn-outline">Post New Job</a>
+          </div>
+          
+          @if (myJobs().length > 0) {
+            <div class="jobs-list">
+              @for (job of myJobs(); track job.id) {
+                <div class="job-item">
+                  <div class="job-item-header">
+                    <h3>{{ job.title }}</h3>
+                    <span class="job-status" [class]="getJobStatusClass(job.status)">
+                      {{ job.status | titlecase }}
+                    </span>
+                  </div>
+                  <p class="job-category">{{ formatCategory(job.category) }}</p>
+                  <p class="job-description">{{ job.description | slice:0:120 }}...</p>
+                  <div class="job-stats">
+                    <span>Budget: ${{ job.budget }}</span>
+                    <span>Proposals: {{ job.proposals.length }}</span>
+                    <span>Deadline: {{ job.deadline | date:'MMM d' }}</span>
+                  </div>
+                  <a [routerLink]="['/job-detail', job.id]" class="btn btn-primary btn-sm">
+                    View Details
+                  </a>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <div class="empty-icon">📋</div>
+              <p>You haven't posted any jobs yet.</p>
+              <a routerLink="/jobs" class="btn btn-primary">Post Your First Job</a>
+            </div>
+          }
+        </div>
+
+        <div class="dashboard-section">
+          <div class="section-header">
+            <h2>My Proposals</h2>
+            <a routerLink="/jobs" class="btn btn-outline">Browse Jobs</a>
+          </div>
+          
+          @if (myProposals().length > 0) {
+            <div class="proposals-list">
+              @for (item of myProposals(); track item.proposal.id) {
+                <div class="proposal-item">
+                  <div class="proposal-header">
+                    <h3>{{ item.job.title }}</h3>
+                    <span class="proposal-status" [class]="getProposalStatusClass(item.proposal.status)">
+                      {{ item.proposal.status | titlecase }}
+                    </span>
+                  </div>
+                  <p class="proposal-amount">Your Bid: ${{ item.proposal.proposedAmount }}</p>
+                  <p class="proposal-delivery">Delivery: {{ item.proposal.deliveryTime }} days</p>
+                  <div class="proposal-actions">
+                    <a [routerLink]="['/job-detail', item.job.id]" class="btn btn-outline btn-sm">
+                      View Job
+                    </a>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <div class="empty-icon">🎯</div>
+              <p>You haven't submitted any proposals yet.</p>
+              <a routerLink="/jobs" class="btn btn-primary">Browse Available Jobs</a>
+            </div>
+          }
+        </div>
+
+        @if (acceptedJobs().length > 0) {
+          <div class="dashboard-section">
+            <div class="section-header">
+              <h2>Active Work</h2>
+            </div>
+            
+            <div class="active-jobs-list">
+              @for (job of acceptedJobs(); track job.id) {
+                <div class="active-job-item">
+                  <h3>{{ job.title }}</h3>
+                  <p class="job-client">Client: {{ job.clientName }}</p>
+                  <p class="job-deadline">Deadline: {{ job.deadline | date:'MMM d, y' }}</p>
+                  <div class="job-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 45%"></div>
+                    </div>
+                    <span class="progress-text">45% Complete</span>
+                  </div>
+                  <a [routerLink]="['/job-detail', job.id]" class="btn btn-secondary btn-sm">
+                    Continue Work
+                  </a>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="auth-required">
+        <h2>Please sign in to access your dashboard</h2>
+        <a routerLink="/auth" class="btn btn-primary">Sign In</a>
+      </div>
+    }
+  </div>
+</div>

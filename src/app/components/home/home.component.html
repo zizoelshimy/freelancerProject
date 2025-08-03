@@ -1,0 +1,81 @@
+<div class="home">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">Find Expert Freelancers for Your Projects</h1>
+          <p class="hero-description">
+            Connect with skilled professionals specializing in word processing, Excel tasks, 
+            data entry, and creative design. Get your projects completed quickly and efficiently.
+          </p>
+          <div class="hero-actions">
+            <a routerLink="/jobs" class="btn btn-primary btn-lg">Browse Jobs</a>
+            <a routerLink="/auth" class="btn btn-outline btn-lg">Join as Freelancer</a>
+          </div>
+        </div>
+        <div class="hero-image">
+          <img src="https://images.pexels.com/photos/3184295/pexels-photo-3184295.jpeg" alt="Freelancer working" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>Why Choose FreelanceHub?</h2>
+        <p>Experience the best freelance platform designed for professionals</p>
+      </div>
+      
+      <div class="grid grid-cols-3 features-grid">
+        @for (feature of features; track feature.title) {
+          <div class="feature-card">
+            <div class="feature-icon">{{ feature.icon }}</div>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="categories">
+    <div class="container">
+      <div class="section-header">
+        <h2>Popular Job Categories</h2>
+        <p>Explore opportunities in your area of expertise</p>
+      </div>
+      
+      <div class="grid grid-cols-3 categories-grid">
+        @for (category of categories; track category.name) {
+          <div class="category-card">
+            <div class="category-icon">{{ category.icon }}</div>
+            <h3>{{ category.name }}</h3>
+            <p>{{ category.description }}</p>
+            <div class="category-stats">
+              <span class="job-count">{{ category.jobCount }} active jobs</span>
+            </div>
+            <a routerLink="/jobs" class="category-link">View Jobs</a>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Ready to Get Started?</h2>
+        <p>Join thousands of freelancers and clients who trust FreelanceHub for their projects</p>
+        <div class="cta-actions">
+          <a routerLink="/auth" class="btn btn-primary btn-lg">Create Account</a>
+          <a routerLink="/jobs" class="btn btn-secondary btn-lg">Post a Job</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

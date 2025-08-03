@@ -1,0 +1,164 @@
+<div class="job-detail-page">
+  <div class="container">
+    @if (job()) {
+      <div class="job-detail">
+        <div class="job-main">
+          <div class="job-header">
+            <div class="job-category">
+              <span class="category-icon">{{ getCategoryIcon(job()!.category) }}</span>
+              <span class="category-text">{{ formatCategory(job()!.category) }}</span>
+            </div>
+            <div class="job-status">
+              <span class="status-badge" [class]="job()!.status">{{ job()!.status | titlecase }}</span>
+            </div>
+          </div>
+
+          <h1 class="job-title">{{ job()!.title }}</h1>
+          
+          <div class="job-meta">
+            <div class="meta-item">
+              <span class="meta-icon">👤</span>
+              <span>{{ job()!.clientName }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">📅</span>
+              <span>Deadline: {{ job()!.deadline | date:'MMM d, y' }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">💰</span>
+              <span>Budget: ${{ job()!.budget }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">📊</span>
+              <span>{{ job()!.proposals.length }} proposals</span>
+            </div>
+          </div>
+
+          <div class="job-description">
+            <h3>Job Description</h3>
+            <p>{{ job()!.description }}</p>
+          </div>
+
+          @if (job()!.requirements.length > 0) {
+            <div class="job-requirements">
+              <h3>Requirements</h3>
+              <ul class="requirements-list">
+                @for (requirement of job()!.requirements; track requirement) {
+                  <li>{{ requirement }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (currentUser() && !isJobOwner() && !hasUserProposed() && job()!.status === 'open') {
+            <div class="proposal-section">
+              @if (!showProposalForm()) {
+                <button (click)="toggleProposalForm()" class="btn btn-primary btn-lg">
+                  Submit Proposal
+                </button>
+              } @else {
+                <div class="proposal-form-container">
+                  <h3>Submit Your Proposal</h3>
+                  <form [formGroup]="proposalForm" (ngSubmit)="submitProposal()" class="proposal-form">
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label">Your Rate ($)</label>
+                        <input type="number" formControlName="proposedAmount" class="form-input" min="1" />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Delivery Time (days)</label>
+                        <input type="number" formControlName="deliveryTime" class="form-input" min="1" />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Cover Letter</label>
+                      <textarea 
+                        formControlName="coverLetter" 
+                        class="form-input" 
+                        rows="5"
+                        placeholder="Explain why you're the best fit for this job..."
+                      ></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                      <button type="button" (click)="toggleProposalForm()" class="btn btn-outline">
+                        Cancel
+                      </button>
+                      <button type="submit" class="btn btn-primary" [disabled]="!proposalForm.valid">
+                        Submit Proposal
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="job-sidebar">
+          <div class="card">
+            <h3>Job Information</h3>
+            <div class="job-info">
+              <div class="info-item">
+                <span class="info-label">Posted</span>
+                <span class="info-value">{{ job()!.createdAt | date:'MMM d, y' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Budget</span>
+                <span class="info-value">${{ job()!.budget }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Deadline</span>
+                <span class="info-value">{{ job()!.deadline | date:'MMM d, y' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Proposals</span>
+                <span class="info-value">{{ job()!.proposals.length }}</span>
+              </div>
+            </div>
+          </div>
+
+          @if (job()!.proposals.length > 0) {
+            <div class="card">
+              <h3>Proposals ({{ job()!.proposals.length }})</h3>
+              <div class="proposals-list">
+                @for (proposal of job()!.proposals; track proposal.id) {
+                  <div class="proposal-item">
+                    <div class="proposal-header">
+                      <h4>{{ proposal.freelancerName }}</h4>
+                      <span class="proposal-amount">${{ proposal.proposedAmount }}</span>
+                    </div>
+                    <p class="proposal-delivery">{{ proposal.deliveryTime }} days delivery</p>
+                    <p class="proposal-excerpt">{{ proposal.coverLetter | slice:0:100 }}...</p>
+                    
+                    @if (isJobOwner() && proposal.status === 'pending') {
+                      <button 
+                        (click)="acceptProposal(proposal.id)" 
+                        class="btn btn-secondary btn-sm"
+                      >
+                        Accept Proposal
+                      </button>
+                    }
+                    
+                    @if (proposal.status !== 'pending') {
+                      <span class="proposal-status" [class]="proposal.status">
+                        {{ proposal.status | titlecase }}
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="job-not-found">
+        <h2>Job Not Found</h2>
+        <p>The job you're looking for doesn't exist or has been removed.</p>
+        <a routerLink="/jobs" class="btn btn-primary">Browse Jobs</a>
+      </div>
+    }
+  </div>
+</div>

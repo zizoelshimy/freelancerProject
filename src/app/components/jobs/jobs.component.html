@@ -1,0 +1,141 @@
+<div class="jobs-page">
+  <div class="container">
+    <div class="jobs-header">
+      <div class="header-content">
+        <h1>Browse Available Jobs</h1>
+        <p>Find opportunities that match your skills and expertise</p>
+      </div>
+      
+      @if (currentUser()) {
+        <button (click)="toggleJobForm()" class="btn btn-primary">
+          {{ showJobForm() ? 'Cancel' : 'Post a Job' }}
+        </button>
+      }
+    </div>
+
+    @if (showJobForm()) {
+      <div class="job-form-container">
+        <div class="card">
+          <h3>Post a New Job</h3>
+          <form [formGroup]="jobForm" (ngSubmit)="createJob()" class="job-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Job Title</label>
+                <input type="text" formControlName="title" class="form-input" 
+                  placeholder="e.g., Data Entry for Customer Database" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <select formControlName="category" class="form-input">
+                  <option value="">Select category</option>
+                  <option value="word-processing">Word Processing</option>
+                  <option value="excel-data-entry">Excel & Data Entry</option>
+                  <option value="design">Design</option>
+                  <option value="typesetting">Typesetting</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea formControlName="description" class="form-input" rows="4"
+                placeholder="Describe the job requirements, deliverables, and any specific instructions..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Budget ($)</label>
+                <input type="number" formControlName="budget" class="form-input" min="1" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Deadline</label>
+                <input type="date" formControlName="deadline" class="form-input" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Requirements (comma separated)</label>
+              <input type="text" formControlName="requirements" class="form-input"
+                placeholder="Excel proficiency, Attention to detail, Previous experience" />
+            </div>
+
+            <button type="submit" class="btn btn-primary" [disabled]="!jobForm.valid">
+              Post Job
+            </button>
+          </form>
+        </div>
+      </div>
+    }
+
+    <div class="jobs-filters">
+      <div class="filter-tabs">
+        @for (category of categories; track category.value) {
+          <button 
+            (click)="filterByCategory(category.value as any)"
+            [class.active]="selectedCategory() === category.value"
+            class="filter-tab"
+          >
+            <span class="tab-icon">{{ category.icon }}</span>
+            <span>{{ category.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="jobs-grid">
+      @for (job of filteredJobs; track job.id) {
+        <div class="job-card">
+          <div class="job-header">
+            <div class="job-category">
+              <span class="category-icon">{{ getCategoryIcon(job.category) }}</span>
+              <span class="category-text">{{ formatCategory(job.category) }}</span>
+            </div>
+            <div class="job-budget">${{ job.budget }}</div>
+          </div>
+
+          <h3 class="job-title">{{ job.title }}</h3>
+          <p class="job-description">{{ job.description }}</p>
+
+          <div class="job-details">
+            <div class="job-meta">
+              <div class="meta-item">
+                <span class="meta-label">Client:</span>
+                <span class="meta-value">{{ job.clientName }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Deadline:</span>
+                <span class="meta-value">{{ job.deadline | date:'MMM d, y' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Proposals:</span>
+                <span class="meta-value">{{ job.proposals.length }}</span>
+              </div>
+            </div>
+
+            @if (job.requirements.length > 0) {
+              <div class="requirements">
+                <h4>Requirements:</h4>
+                <div class="requirements-list">
+                  @for (requirement of job.requirements; track requirement) {
+                    <span class="requirement-tag">{{ requirement }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="job-actions">
+            <a [routerLink]="['/job-detail', job.id]" class="btn btn-primary">View Details</a>
+            <span class="job-posted">Posted {{ job.createdAt | date:'short' }}</span>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-jobs">
+          <div class="empty-icon">🔍</div>
+          <h3>No jobs found</h3>
+          <p>Try adjusting your filters or check back later for new opportunities.</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
