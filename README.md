@@ -1,3 +1,34 @@
+## Authentication Flow
+
+- **Endpoint:** `POST /api/auth/login`
+- **Request Body:**
+  ```json
+  {
+    "email": "user@example.com",
+    "password": "userPassword"
+  }
+  ```
+- **Flow:**
+  1. The controller receives the login request and extracts email and password.
+  2. The use case looks up the user by email using the repository.
+  3. If the user exists, the password is checked using `PasswordService.compare()`.
+  4. If valid, a JWT token is generated and returned with the user's public info (no password).
+  5. If authentication fails, a 401 error is returned.
+- **Response Example:**
+  ```json
+  {
+    "user": {
+      "id": "...",
+      "fullName": "...",
+      "email": "...",
+      "createdAt": "...",
+      "updatedAt": "..."
+    },
+    "token": "<JWT token>"
+  }
+  ```
+- **Security:** Passwords are never exposed in responses. JWT tokens are used for session management and API authentication.
+
 # Backend Architecture (Node.js, Express, MongoDB, Clean Architecture)
 
 ## Folder Structure
