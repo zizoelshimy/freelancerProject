@@ -54,6 +54,17 @@ backend/
 - **Infrastructure Layer**: Implements interfaces from the domain layer (e.g., MongoDB repositories, external services).
 - **Interface Layer**: Express controllers, routes, and adapters. Only interacts with the application layer.
 
+## Password Handling & Security
+
+- User passwords are never stored in plain text. The `PasswordService` in `infrastructure/security/password.service.ts` is used to hash passwords before saving them to the database, and to compare hashes during authentication.
+- When creating or updating a user (e.g., via Postman), you send the password in the request body, but the password will never appear in the API response.
+- The `UserResponseDTO` excludes the password field, so user data returned from the API is always safe for the client.
+
+**Best Practices:**
+
+- Always hash passwords before saving to the database.
+- Never expose password hashes or plain passwords in API responses.
+
 **SOLID Principles:**
 
 - Single Responsibility: Each class/module has one responsibility.
