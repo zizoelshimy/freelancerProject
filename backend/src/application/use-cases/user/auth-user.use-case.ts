@@ -24,7 +24,7 @@ export class AuthUserUseCase {
     // Generate JWT token
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      process.env.JWT_SECRET || "secret",
+      process.env["JWT_SECRET"] || "secret",
       { expiresIn: "1d" }
     );
     return { user: UserMapper.toDTO(user), token };

@@ -6,10 +6,30 @@ dotenv.config({ path: ".env" });
 
 import userRoutes from "./interfaces/http/routes/user.routes";
 import authRoutes from "./interfaces/http/routes/auth.routes";
+import cors from "cors";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-const DB_URI = process.env.DB_URI || "";
+const PORT = process.env["PORT"] || 5000;
+const DB_URI = process.env["DB_URI"] || "";
+
+// Simple CORS setup
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+
+  if (req.method === "OPTIONS") {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 app.use(express.json());
 

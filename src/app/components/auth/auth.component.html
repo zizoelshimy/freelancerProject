@@ -3,98 +3,155 @@
     <div class="auth-container">
       <div class="auth-card">
         <div class="auth-header">
-          <h2>{{ isLogin() ? 'Welcome Back' : 'Create Account' }}</h2>
-          <p>{{ isLogin() ? 'Sign in to your account' : 'Join our freelance community' }}</p>
+          <h2>{{ isLogin() ? "Welcome Back" : "Create Account" }}</h2>
+          <p>
+            {{
+              isLogin()
+                ? "Sign in to your account"
+                : "Join our freelance community"
+            }}
+          </p>
         </div>
 
         @if (isLogin()) {
-          <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
-            <div class="form-group">
-              <label class="form-label">Email Address</label>
-              <input 
-                type="email" 
-                formControlName="email" 
-                class="form-input"
-                placeholder="Enter your email"
-              />
-            </div>
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input
+              type="email"
+              formControlName="email"
+              class="form-input"
+              placeholder="Enter your email"
+            />
+          </div>
 
-            <div class="form-group">
-              <label class="form-label">Password</label>
-              <input 
-                type="password" 
-                formControlName="password" 
-                class="form-input"
-                placeholder="Enter your password"
-              />
-            </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input
+              type="password"
+              formControlName="password"
+              class="form-input"
+              placeholder="Enter your password"
+            />
+          </div>
 
-            <button 
-              type="submit" 
-              class="btn btn-primary w-full"
-              [disabled]="!loginForm.valid || isLoading()"
-            >
-              {{ isLoading() ? 'Signing In...' : 'Sign In' }}
-            </button>
-          </form>
+          <button
+            type="submit"
+            class="btn btn-primary w-full"
+            [disabled]="!loginForm.valid || isLoading()"
+          >
+            {{ isLoading() ? "Signing In..." : "Sign In" }}
+          </button>
+        </form>
         } @else {
-          <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
-            <div class="form-group">
-              <label class="form-label">Full Name</label>
-              <input 
-                type="text" 
-                formControlName="fullName" 
-                class="form-input"
-                placeholder="Enter your full name"
-              />
+        <form
+          [formGroup]="registerForm"
+          (ngSubmit)="onRegister()"
+          class="auth-form"
+        >
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input
+              type="text"
+              formControlName="fullName"
+              class="form-input"
+              placeholder="Enter your full name"
+            />
+            @if (registerForm.get('fullName')?.invalid &&
+            registerForm.get('fullName')?.touched) {
+            <div class="error-message">
+              @if (registerForm.get('fullName')?.errors?.['required']) { Full
+              name is required } @if
+              (registerForm.get('fullName')?.errors?.['minlength']) { Full name
+              must be at least 2 characters }
             </div>
+            }
+          </div>
 
-            <div class="form-group">
-              <label class="form-label">Email Address</label>
-              <input 
-                type="email" 
-                formControlName="email" 
-                class="form-input"
-                placeholder="Enter your email"
-              />
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input
+              type="email"
+              formControlName="email"
+              class="form-input"
+              placeholder="Enter your email"
+            />
+            @if (registerForm.get('email')?.invalid &&
+            registerForm.get('email')?.touched) {
+            <div class="error-message">
+              @if (registerForm.get('email')?.errors?.['required']) { Email is
+              required } @if (registerForm.get('email')?.errors?.['email']) {
+              Please enter a valid email address }
             </div>
+            }
+          </div>
 
-            <div class="form-group">
-              <label class="form-label">Password</label>
-              <input 
-                type="password" 
-                formControlName="password" 
-                class="form-input"
-                placeholder="Create a password"
-              />
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input
+              type="password"
+              formControlName="password"
+              class="form-input"
+              placeholder="Create a password"
+            />
+            <div class="password-requirements">
+              <small>Password must contain:</small>
+              <ul>
+                <li>At least 6 characters</li>
+                <li>One uppercase letter (A-Z)</li>
+                <li>One lowercase letter (a-z)</li>
+                <li>One number (0-9)</li>
+                <li>One special character (!&#64;#$%^&*)</li>
+              </ul>
             </div>
-
-            <div class="form-group">
-              <label class="form-label">Confirm Password</label>
-              <input 
-                type="password" 
-                formControlName="confirmPassword" 
-                class="form-input"
-                placeholder="Confirm your password"
-              />
+            @if (registerForm.get('password')?.invalid &&
+            registerForm.get('password')?.touched) {
+            <div class="error-message">
+              @if (registerForm.get('password')?.errors?.['required']) {
+              Password is required } @if
+              (registerForm.get('password')?.errors?.['pattern']) { Password
+              must meet all requirements above }
             </div>
+            }
+          </div>
 
-            <button 
-              type="submit" 
-              class="btn btn-primary w-full"
-              [disabled]="!registerForm.valid || isLoading()"
-            >
-              {{ isLoading() ? 'Creating Account...' : 'Create Account' }}
-            </button>
-          </form>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input
+              type="password"
+              formControlName="confirmPassword"
+              class="form-input"
+              placeholder="Confirm your password"
+            />
+            @if (registerForm.get('confirmPassword')?.invalid &&
+            registerForm.get('confirmPassword')?.touched) {
+            <div class="error-message">
+              @if (registerForm.get('confirmPassword')?.errors?.['required']) {
+              Please confirm your password }
+            </div>
+            } @if (registerForm.get('password')?.value !==
+            registerForm.get('confirmPassword')?.value &&
+            registerForm.get('confirmPassword')?.touched) {
+            <div class="error-message">Passwords do not match</div>
+            }
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary w-full"
+            [disabled]="!isRegisterFormValid || isLoading()"
+          >
+            {{ isLoading() ? "Creating Account..." : "Create Account" }}
+          </button>
+        </form>
         }
 
         <div class="auth-divider">
           <span>or</span>
         </div>
 
-        <button 
-          (click)="loginWithGoogle()" 
+        <button
+          (click)="loginWithGoogle()"
           class="btn btn-google w-full"
           [disabled]="isLoading()"
         >
@@ -102,11 +159,20 @@
           Continue with Google
         </button>
 
+        <button
+          (click)="testBackendConnection()"
+          class="btn btn-secondary w-full"
+          style="margin-top: 10px"
+        >
+          Test Backend Connection
+        </button>
         <div class="auth-footer">
           <p>
-            {{ isLogin() ? "Don't have an account?" : "Already have an account?" }}
+            {{
+              isLogin() ? "Don't have an account?" : "Already have an account?"
+            }}
             <button (click)="toggleMode()" class="toggle-link">
-              {{ isLogin() ? 'Sign up' : 'Sign in' }}
+              {{ isLogin() ? "Sign up" : "Sign in" }}
             </button>
           </p>
         </div>

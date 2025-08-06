@@ -51,7 +51,7 @@ export const getUserById = async (req: Request, res: Response) => {
     const userRepository = new MongoUserRepository();
     const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
 
-    const user = await getUserByIdUseCase.execute(req.params.id);
+    const user = await getUserByIdUseCase.execute(req.params["id"]);
     res.json(user);
   } catch (err) {
     if ((err as Error).message === "User not found") {
@@ -72,7 +72,7 @@ export const updateUser = async (req: Request, res: Response) => {
     const userRepository = new MongoUserRepository();
     const updateUserUseCase = new UpdateUserUseCase(userRepository);
 
-    const user = await updateUserUseCase.execute(req.params.id, req.body);
+    const user = await updateUserUseCase.execute(req.params["id"], req.body);
     res.json(user);
   } catch (err) {
     if ((err as Error).message === "User not found") {
@@ -93,7 +93,7 @@ export const patchUser = async (req: Request, res: Response) => {
     const userRepository = new MongoUserRepository();
     const updateUserUseCase = new UpdateUserUseCase(userRepository);
 
-    const user = await updateUserUseCase.execute(req.params.id, req.body);
+    const user = await updateUserUseCase.execute(req.params["id"], req.body);
     res.json(user);
   } catch (err) {
     if ((err as Error).message === "User not found") {
@@ -109,7 +109,7 @@ export const deleteUser = async (req: Request, res: Response) => {
     const userRepository = new MongoUserRepository();
     const deleteUserUseCase = new DeleteUserUseCase(userRepository);
 
-    await deleteUserUseCase.execute(req.params.id);
+    await deleteUserUseCase.execute(req.params["id"]);
     res.json({ message: "User deleted" });
   } catch (err) {
     if ((err as Error).message === "User not found") {
