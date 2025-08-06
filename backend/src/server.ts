@@ -6,6 +6,7 @@ dotenv.config({ path: ".env" });
 
 import userRoutes from "./interfaces/http/routes/user.routes";
 import authRoutes from "./interfaces/http/routes/auth.routes";
+import profileRoutes from "./interfaces/http/routes/profile.routes";
 import cors from "cors";
 
 const app = express();
@@ -37,6 +38,8 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 // Auth routes
 app.use("/api/auth", authRoutes);
+// Profile routes
+app.use("/api/profile", profileRoutes);
 
 // Health check route
 app.get("/api/health", (req, res) => {

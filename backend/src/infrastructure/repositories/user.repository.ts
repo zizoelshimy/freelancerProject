@@ -57,14 +57,49 @@ export class MongoUserRepository implements UserRepository {
   }
 
   private documentToEntity(document: Document): User {
-    const { _id, fullName, email, password, createdAt, updatedAt } =
-      document.toObject();
+    const {
+      _id,
+      fullName,
+      email,
+      password,
+      profileImage,
+      bio,
+      skills,
+      experience,
+      portfolio,
+      rating,
+      completedJobs,
+      createdAt,
+      updatedAt,
+    } = document.toObject();
 
     return {
       id: _id.toString(),
       fullName,
       email,
       password,
+      profileImage,
+      bio,
+      skills,
+      experience: experience?.map((exp: any) => ({
+        id: exp._id?.toString(),
+        title: exp.title,
+        company: exp.company,
+        startDate: exp.startDate,
+        endDate: exp.endDate,
+        description: exp.description,
+        current: exp.current,
+      })),
+      portfolio: portfolio?.map((item: any) => ({
+        id: item._id?.toString(),
+        title: item.title,
+        description: item.description,
+        category: item.category,
+        fileUrl: item.fileUrl,
+        createdAt: item.createdAt,
+      })),
+      rating,
+      completedJobs,
       createdAt,
       updatedAt,
     };

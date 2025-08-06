@@ -20,7 +20,22 @@ export class AuthService {
   private loadUserFromStorage(): void {
     const userData = localStorage.getItem("currentUser");
     if (userData) {
-      this.currentUserSignal.set(JSON.parse(userData));
+      const parsedUser = JSON.parse(userData);
+
+      // Convert string dates back to Date objects and ensure all required fields exist
+      const user: User = {
+        ...parsedUser,
+        createdAt: parsedUser.createdAt
+          ? new Date(parsedUser.createdAt)
+          : new Date(),
+        skills: parsedUser.skills || [],
+        experience: parsedUser.experience || [],
+        portfolio: parsedUser.portfolio || [],
+        rating: parsedUser.rating || 0,
+        completedJobs: parsedUser.completedJobs || 0,
+      };
+
+      this.currentUserSignal.set(user);
     }
   }
 
@@ -86,9 +101,23 @@ export class AuthService {
   }
 
   // User state management
-  setCurrentUser(user: User, token: string): void {
-    this.currentUserSignal.set(user);
-    localStorage.setItem("currentUser", JSON.stringify(user));
+  setCurrentUser(user: any, token: string): void {
+    // Ensure the user object has all required fields for the frontend User model
+    const completeUser: User = {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      createdAt: new Date(user.createdAt),
+      skills: user.skills || [],
+      experience: user.experience || [],
+      portfolio: user.portfolio || [],
+      rating: user.rating || 0,
+      completedJobs: user.completedJobs || 0,
+      bio: user.bio || "",
+    };
+
+    this.currentUserSignal.set(completeUser);
+    localStorage.setItem("currentUser", JSON.stringify(completeUser));
     this.saveToken(token);
   }
 

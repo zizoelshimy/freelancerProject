@@ -13,6 +13,28 @@ export class UserMapper {
       id: user.id || "",
       fullName: user.fullName,
       email: user.email,
+      profileImage: user.profileImage,
+      bio: user.bio || "",
+      skills: user.skills || [],
+      experience: (user.experience || []).map((exp) => ({
+        id: exp.id || String(new Date().getTime()),
+        title: exp.title,
+        company: exp.company,
+        startDate: exp.startDate?.toISOString() || "",
+        endDate: exp.endDate?.toISOString(),
+        description: exp.description,
+        current: exp.current,
+      })),
+      portfolio: (user.portfolio || []).map((item) => ({
+        id: item.id || String(new Date().getTime()),
+        title: item.title,
+        description: item.description,
+        category: item.category,
+        fileUrl: item.fileUrl,
+        createdAt: item.createdAt?.toISOString() || "",
+      })),
+      rating: user.rating || 0,
+      completedJobs: user.completedJobs || 0,
       createdAt: user.createdAt?.toISOString() || "",
       updatedAt: user.updatedAt?.toISOString() || "",
     };
@@ -35,6 +57,11 @@ export class UserMapper {
     if (updateUserDTO.email !== undefined) entity.email = updateUserDTO.email;
     if (updateUserDTO.password !== undefined)
       entity.password = updateUserDTO.password;
+    if (updateUserDTO.profileImage !== undefined)
+      entity.profileImage = updateUserDTO.profileImage;
+    if (updateUserDTO.bio !== undefined) entity.bio = updateUserDTO.bio;
+    if (updateUserDTO.skills !== undefined)
+      entity.skills = updateUserDTO.skills;
     return entity;
   }
 }
