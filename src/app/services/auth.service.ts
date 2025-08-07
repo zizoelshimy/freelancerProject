@@ -135,4 +135,155 @@ export class AuthService {
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
     }
   }
+
+  // Profile API operations
+  updateProfile(profileData: {
+    fullName?: string;
+    bio?: string;
+    skills?: string[];
+  }): Observable<any> {
+    const currentUser = this.currentUserSignal();
+    if (!currentUser) {
+      return throwError(() => new Error("User not authenticated"));
+    }
+
+    const headers = {
+      Authorization: `Bearer ${this.getToken()}`,
+      "Content-Type": "application/json",
+    };
+
+    return this.http
+      .put(`${this.apiUrl}/profile/${currentUser.id}`, profileData, { headers })
+      .pipe(
+        tap((response: any) => {
+          this.setCurrentUser(response, this.getToken()!);
+        }),
+        catchError((error) => {
+          console.error("Profile update error:", error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  addExperience(experienceData: {
+    title: string;
+    company: string;
+    startDate: string;
+    endDate?: string;
+    description?: string;
+    current?: boolean;
+  }): Observable<any> {
+    const currentUser = this.currentUserSignal();
+    if (!currentUser) {
+      return throwError(() => new Error("User not authenticated"));
+    }
+
+    const headers = {
+      Authorization: `Bearer ${this.getToken()}`,
+      "Content-Type": "application/json",
+    };
+
+    return this.http
+      .post(
+        `${this.apiUrl}/profile/${currentUser.id}/experience`,
+        experienceData,
+        { headers }
+      )
+      .pipe(
+        tap((response: any) => {
+          this.setCurrentUser(response, this.getToken()!);
+        }),
+        catchError((error) => {
+          console.error("Add experience error:", error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  removeExperience(experienceId: string): Observable<any> {
+    const currentUser = this.currentUserSignal();
+    if (!currentUser) {
+      return throwError(() => new Error("User not authenticated"));
+    }
+
+    const headers = {
+      Authorization: `Bearer ${this.getToken()}`,
+      "Content-Type": "application/json",
+    };
+
+    return this.http
+      .delete(
+        `${this.apiUrl}/profile/${currentUser.id}/experience/${experienceId}`,
+        { headers }
+      )
+      .pipe(
+        tap((response: any) => {
+          this.setCurrentUser(response, this.getToken()!);
+        }),
+        catchError((error) => {
+          console.error("Remove experience error:", error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  addPortfolioItem(portfolioData: {
+    title: string;
+    description: string;
+    category: string;
+    fileUrl?: string;
+  }): Observable<any> {
+    const currentUser = this.currentUserSignal();
+    if (!currentUser) {
+      return throwError(() => new Error("User not authenticated"));
+    }
+
+    const headers = {
+      Authorization: `Bearer ${this.getToken()}`,
+      "Content-Type": "application/json",
+    };
+
+    return this.http
+      .post(
+        `${this.apiUrl}/profile/${currentUser.id}/portfolio`,
+        portfolioData,
+        { headers }
+      )
+      .pipe(
+        tap((response: any) => {
+          this.setCurrentUser(response, this.getToken()!);
+        }),
+        catchError((error) => {
+          console.error("Add portfolio item error:", error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  removePortfolioItem(portfolioItemId: string): Observable<any> {
+    const currentUser = this.currentUserSignal();
+    if (!currentUser) {
+      return throwError(() => new Error("User not authenticated"));
+    }
+
+    const headers = {
+      Authorization: `Bearer ${this.getToken()}`,
+      "Content-Type": "application/json",
+    };
+
+    return this.http
+      .delete(
+        `${this.apiUrl}/profile/${currentUser.id}/portfolio/${portfolioItemId}`,
+        { headers }
+      )
+      .pipe(
+        tap((response: any) => {
+          this.setCurrentUser(response, this.getToken()!);
+        }),
+        catchError((error) => {
+          console.error("Remove portfolio item error:", error);
+          return throwError(() => error);
+        })
+      );
+  }
 }

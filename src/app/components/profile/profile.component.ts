@@ -57,73 +57,87 @@ export class ProfileComponent {
           .filter(Boolean),
       };
 
-      this.authService.updateUser(updatedData);
-      alert("Profile updated successfully!");
+      this.authService.updateProfile(updatedData).subscribe({
+        next: (response) => {
+          alert("Profile updated successfully!");
+        },
+        error: (error) => {
+          console.error("Error updating profile:", error);
+          alert("Error updating profile. Please try again.");
+        },
+      });
     }
   }
 
   addExperience(): void {
     if (this.experienceForm.valid) {
       const formData = this.experienceForm.value;
-      const newExperience: WorkExperience = {
-        id: Date.now().toString(),
+      const experienceData = {
         title: formData.title!,
         company: formData.company!,
-        startDate: new Date(formData.startDate!),
-        endDate: formData.endDate ? new Date(formData.endDate) : undefined,
+        startDate: formData.startDate!,
+        endDate: formData.endDate || undefined,
         description: formData.description || "",
         current: formData.current || false,
       };
 
-      const currentUser = this.currentUser();
-      if (currentUser) {
-        const updatedExperience = [...currentUser.experience, newExperience];
-        this.authService.updateUser({ experience: updatedExperience });
-        this.experienceForm.reset();
-        alert("Experience added successfully!");
-      }
+      this.authService.addExperience(experienceData).subscribe({
+        next: (response) => {
+          this.experienceForm.reset();
+          alert("Experience added successfully!");
+        },
+        error: (error) => {
+          console.error("Error adding experience:", error);
+          alert("Error adding experience. Please try again.");
+        },
+      });
     }
   }
 
   addPortfolioItem(): void {
     if (this.portfolioForm.valid) {
       const formData = this.portfolioForm.value;
-      const newPortfolioItem: PortfolioItem = {
-        id: Date.now().toString(),
+      const portfolioData = {
         title: formData.title!,
         description: formData.description!,
         category: formData.category!,
-        fileUrl: formData.fileUrl ?? undefined,
-        createdAt: new Date(),
+        fileUrl: formData.fileUrl || undefined,
       };
 
-      const currentUser = this.currentUser();
-      if (currentUser) {
-        const updatedPortfolio = [...currentUser.portfolio, newPortfolioItem];
-        this.authService.updateUser({ portfolio: updatedPortfolio });
-        this.portfolioForm.reset();
-        alert("Portfolio item added successfully!");
-      }
+      this.authService.addPortfolioItem(portfolioData).subscribe({
+        next: (response) => {
+          this.portfolioForm.reset();
+          alert("Portfolio item added successfully!");
+        },
+        error: (error) => {
+          console.error("Error adding portfolio item:", error);
+          alert("Error adding portfolio item. Please try again.");
+        },
+      });
     }
   }
 
   removeExperience(id: string): void {
-    const currentUser = this.currentUser();
-    if (currentUser) {
-      const updatedExperience = currentUser.experience.filter(
-        (exp) => exp.id !== id
-      );
-      this.authService.updateUser({ experience: updatedExperience });
-    }
+    this.authService.removeExperience(id).subscribe({
+      next: (response) => {
+        alert("Experience removed successfully!");
+      },
+      error: (error) => {
+        console.error("Error removing experience:", error);
+        alert("Error removing experience. Please try again.");
+      },
+    });
   }
 
   removePortfolioItem(id: string): void {
-    const currentUser = this.currentUser();
-    if (currentUser) {
-      const updatedPortfolio = currentUser.portfolio.filter(
-        (item) => item.id !== id
-      );
-      this.authService.updateUser({ portfolio: updatedPortfolio });
-    }
+    this.authService.removePortfolioItem(id).subscribe({
+      next: (response) => {
+        alert("Portfolio item removed successfully!");
+      },
+      error: (error) => {
+        console.error("Error removing portfolio item:", error);
+        alert("Error removing portfolio item. Please try again.");
+      },
+    });
   }
 }
