@@ -6,7 +6,7 @@
         <div class="profile-avatar">
           <img
             [src]="
-              currentUser()?.profileImage ||
+              profileImageUrl() ||
               'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg'
             "
             [alt]="currentUser()?.fullName"
@@ -326,6 +326,78 @@
               Update Profile
             </button>
           </form>
+        </div>
+
+        <div class="card">
+          <h3>Profile Image</h3>
+          <div class="image-upload-section">
+            @if (currentUser()?.profileImage) {
+            <div class="current-image">
+              <h4>Current Profile Image</h4>
+              <img
+                [src]="profileImageUrl()"
+                [alt]="currentUser()?.fullName"
+                class="current-profile-image"
+              />
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                (click)="deleteImage()"
+              >
+                Delete Image
+              </button>
+            </div>
+            }
+
+            <div class="image-upload-form">
+              <h4>
+                {{ currentUser()?.profileImage ? "Change" : "Upload" }} Profile
+                Image
+              </h4>
+
+              @if (imagePreview()) {
+              <div class="image-preview">
+                <img
+                  [src]="imagePreview()"
+                  alt="Preview"
+                  class="preview-image"
+                />
+                <div class="preview-actions">
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    [disabled]="isUploading()"
+                    (click)="uploadImage()"
+                  >
+                    {{ isUploading() ? "Uploading..." : "Upload Image" }}
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="cancelImageSelection()"
+                    [disabled]="isUploading()"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+              } @else {
+              <div class="file-input-wrapper">
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="onImageSelected($event)"
+                  class="file-input"
+                  id="profileImageInput"
+                />
+                <label for="profileImageInput" class="file-input-label">
+                  <span class="file-input-text">Choose Image</span>
+                  <span class="file-input-hint">Max 5MB, JPG/PNG/GIF</span>
+                </label>
+              </div>
+              }
+            </div>
+          </div>
         </div>
 
         <div class="card">

@@ -8,6 +8,10 @@ import {
   RemoveRecentActivityUseCase,
   UpdateProfileUseCase,
 } from "../../../application/use-cases/user/profile-operations.use-case";
+import {
+  UploadProfileImageUseCase,
+  DeleteProfileImageUseCase,
+} from "../../../application/use-cases/user/image-upload.use-case";
 import { MongoUserRepository } from "../../../infrastructure/repositories/user.repository";
 
 // Update user profile (bio, skills, etc)
@@ -147,6 +151,49 @@ export const removeRecentActivity = async (req: Request, res: Response) => {
       userId,
       activityId
     );
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ error: (err as Error).message });
+  }
+};
+
+// Upload profile image
+export const uploadProfileImage = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+
+    if (!req.file) {
+      return res.status(400).json({ error: "No image file provided" });
+    }
+
+    // Use repository pattern and use case
+    const userRepository = new MongoUserRepository();
+    const uploadProfileImageUseCase = new UploadProfileImageUseCase(
+      userRepository
+    );
+
+    const result = await uploadProfileImageUseCase.execute(
+      userId,
+      req.file.filename
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: (err as Error).message });
+  }
+};
+
+// Delete profile image
+export const deleteProfileImage = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+
+    // Use repository pattern and use case
+    const userRepository = new MongoUserRepository();
+    const deleteProfileImageUseCase = new DeleteProfileImageUseCase(
+      userRepository
+    );
+
+    const updatedUser = await deleteProfileImageUseCase.execute(userId);
     res.json(updatedUser);
   } catch (err) {
     res.status(400).json({ error: (err as Error).message });

@@ -108,6 +108,7 @@ export class AuthService {
       id: user.id,
       email: user.email,
       fullName: user.fullName,
+      profileImage: user.profileImage, // Add this line!
       createdAt: new Date(user.createdAt),
       skills: user.skills || [],
       experience: user.experience || [],
@@ -339,6 +340,68 @@ export class AuthService {
         }),
         catchError((error) => {
           console.error("Remove recent activity error:", error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  // Upload profile image
+  uploadProfileImage(file: File): Observable<any> {
+    const currentUser = this.currentUserSignal();
+    if (!currentUser) {
+      return throwError(() => new Error("User not authenticated"));
+    }
+
+    const formData = new FormData();
+    formData.append("profileImage", file);
+
+    const headers = {
+      Authorization: `Bearer ${this.getToken()}`,
+      // Don't set Content-Type header for FormData - browser will set it automatically
+    };
+
+    return this.http
+      .post(`${this.apiUrl}/profile/${currentUser.id}/upload-image`, formData, {
+        headers,
+      })
+      .pipe(
+        tap((response: any) => {
+          // Update current user with the full updated user object
+          console.log("Upload response received in auth service:", response);
+          console.log("Current user before update:", this.currentUserSignal());
+          this.setCurrentUser(response, this.getToken()!);
+          console.log("Current user after update:", this.currentUserSignal());
+        }),
+        catchError((error) => {
+          console.error("Upload profile image error:", error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  // Delete profile image
+  deleteProfileImage(): Observable<any> {
+    const currentUser = this.currentUserSignal();
+    if (!currentUser) {
+      return throwError(() => new Error("User not authenticated"));
+    }
+
+    const headers = {
+      Authorization: `Bearer ${this.getToken()}`,
+      "Content-Type": "application/json",
+    };
+
+    return this.http
+      .delete(`${this.apiUrl}/profile/${currentUser.id}/delete-image`, {
+        headers,
+      })
+      .pipe(
+        tap((response: any) => {
+          // Update current user with the full updated user object
+          this.setCurrentUser(response, this.getToken()!);
+        }),
+        catchError((error) => {
+          console.error("Delete profile image error:", error);
           return throwError(() => error);
         })
       );

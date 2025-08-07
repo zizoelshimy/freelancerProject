@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject, signal, computed } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { RouterLink } from "@angular/router";
@@ -18,6 +18,25 @@ export class ProfileComponent {
 
   currentUser = this.authService.currentUser;
   activeTab = signal("overview");
+  selectedImageFile = signal<File | null>(null);
+  imagePreview = signal<string | null>(null);
+  isUploading = signal(false);
+
+  // Computed signal for profile image URL to ensure reactivity
+  profileImageUrl = computed(() => {
+    const user = this.currentUser();
+    console.log("Current user in computed signal:", user);
+    if (user?.profileImage) {
+      // If it's a full URL, return as is, otherwise prepend the base URL
+      const imageUrl = user.profileImage.startsWith("http")
+        ? user.profileImage
+        : `http://localhost:5000${user.profileImage}`;
+      console.log("Profile image URL computed:", imageUrl);
+      return imageUrl;
+    }
+    console.log("No profile image found, returning null");
+    return null;
+  });
 
   profileForm = this.fb.group({
     fullName: [this.currentUser()?.fullName || "", [Validators.required]],
@@ -175,5 +194,91 @@ export class ProfileComponent {
         alert("Error removing recent activity. Please try again.");
       },
     });
+  }
+
+  // Image upload methods
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        alert("Please select an image file.");
+        return;
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size must be less than 5MB.");
+        return;
+      }
+
+      this.selectedImageFile.set(file);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.imagePreview.set(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  uploadImage(): void {
+    const file = this.selectedImageFile();
+    if (!file) {
+      alert("Please select an image first.");
+      return;
+    }
+
+    this.isUploading.set(true);
+    this.authService.uploadProfileImage(file).subscribe({
+      next: (response) => {
+        this.isUploading.set(false);
+        this.selectedImageFile.set(null);
+        this.imagePreview.set(null);
+        console.log("Upload response:", response);
+        console.log("Updated user:", this.currentUser());
+        alert("Profile image uploaded successfully!");
+      },
+      error: (error) => {
+        this.isUploading.set(false);
+        console.error("Error uploading image:", error);
+        alert("Error uploading image. Please try again.");
+      },
+    });
+  }
+
+  deleteImage(): void {
+    if (confirm("Are you sure you want to delete your profile image?")) {
+      this.authService.deleteProfileImage().subscribe({
+        next: (response) => {
+          console.log("Delete response:", response);
+          console.log("Updated user after delete:", this.currentUser());
+          alert("Profile image deleted successfully!");
+        },
+        error: (error) => {
+          console.error("Error deleting image:", error);
+          alert("Error deleting image. Please try again.");
+        },
+      });
+    }
+  }
+
+  cancelImageSelection(): void {
+    this.selectedImageFile.set(null);
+    this.imagePreview.set(null);
+  }
+
+  getProfileImageUrl(): string | null {
+    const user = this.currentUser();
+    if (user?.profileImage) {
+      // If it's a full URL, return as is, otherwise prepend the base URL
+      return user.profileImage.startsWith("http")
+        ? user.profileImage
+        : `http://localhost:5000${user.profileImage}`;
+    }
+    return null;
   }
 }

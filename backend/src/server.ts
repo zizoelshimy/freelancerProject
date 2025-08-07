@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import path from "path";
 // Correct path for .env when running from backend/
 dotenv.config({ path: ".env" });
 
@@ -33,6 +34,9 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+
+// Serve uploaded images statically
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // User CRUD routes
 app.use("/api/users", userRoutes);
