@@ -8,6 +8,8 @@ dotenv.config({ path: ".env" });
 import userRoutes from "./interfaces/http/routes/user.routes";
 import authRoutes from "./interfaces/http/routes/auth.routes";
 import profileRoutes from "./interfaces/http/routes/profile.routes";
+import jobRoutes from "./interfaces/http/routes/job.routes";
+import proposalRoutes from "./interfaces/http/routes/proposal.routes";
 import cors from "cors";
 
 const app = express();
@@ -44,6 +46,10 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 // Profile routes
 app.use("/api/profile", profileRoutes);
+// Job routes
+app.use("/api", jobRoutes);
+// Proposal routes
+app.use("/api", proposalRoutes);
 
 // Health check route
 app.get("/api/health", (req, res) => {
@@ -72,6 +78,24 @@ mongoose
       );
       console.log(
         `  Delete user:    DELETE http://localhost:${PORT}/api/users/:id`
+      );
+      console.log("");
+      console.log("Job endpoints:");
+      console.log(`  Get all jobs:   GET    http://localhost:${PORT}/api/jobs`);
+      console.log(`  Create job:     POST   http://localhost:${PORT}/api/jobs`);
+      console.log(
+        `  Get job by id:  GET    http://localhost:${PORT}/api/jobs/:id`
+      );
+      console.log(
+        `  Get by category: GET   http://localhost:${PORT}/api/jobs/category/:category`
+      );
+      console.log("");
+      console.log("Proposal endpoints:");
+      console.log(
+        `  Create proposal: POST  http://localhost:${PORT}/api/proposals`
+      );
+      console.log(
+        `  Get proposals:   GET   http://localhost:${PORT}/api/proposals/job/:jobId`
       );
     });
   })

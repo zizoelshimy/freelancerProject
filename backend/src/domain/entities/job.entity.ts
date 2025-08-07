@@ -1,30 +1,32 @@
+// Domain entity for Job
 export interface Job {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   category: JobCategory;
   budget: number;
   deadline: Date;
-  status: JobStatus;
   requirements: string[];
-  attachments?: string[];
-  clientId: string;
+  clientId: string; // User who posted the job
   clientName: string;
-  proposals: JobProposal[];
-  acceptedProposal?: string;
-  createdAt: Date;
+  status: JobStatus;
+  proposals: string[]; // Array of proposal IDs
+  selectedProposal?: string; // ID of accepted proposal
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface JobProposal {
-  id: string;
+export interface Proposal {
+  id?: string;
   jobId: string;
-  freelancerId: string;
+  freelancerId: string; // User who submitted the proposal
   freelancerName: string;
-  proposedAmount: number;
+  rate: number; // Proposed rate in dollars
+  deliveryTime: number; // Delivery time in days
   coverLetter: string;
-  deliveryTime: number;
   status: ProposalStatus;
-  createdAt: Date;
+  submittedAt?: Date;
+  updatedAt?: Date;
 }
 
 export enum JobCategory {
@@ -32,6 +34,7 @@ export enum JobCategory {
   EXCEL_DATA_ENTRY = "excel-data-entry",
   DESIGN = "design",
   TYPESETTING = "typesetting",
+  ALL_JOBS = "all-jobs",
 }
 
 export enum JobStatus {

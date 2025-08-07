@@ -20,11 +20,13 @@ export class JobDetailComponent implements OnInit {
   private fb = inject(FormBuilder);
 
   job = signal<Job | null>(null);
+  proposals = signal<JobProposal[]>([]);
   currentUser = this.authService.currentUser;
   showProposalForm = signal(false);
+  loading = signal(false);
 
   proposalForm = this.fb.group({
-    proposedAmount: [0, [Validators.required, Validators.min(1)]],
+    rate: [0, [Validators.required, Validators.min(1)]],
     deliveryTime: [1, [Validators.required, Validators.min(1)]],
     coverLetter: ["", [Validators.required, Validators.minLength(50)]],
   });
@@ -32,8 +34,29 @@ export class JobDetailComponent implements OnInit {
   ngOnInit(): void {
     const jobId = this.route.snapshot.paramMap.get("id");
     if (jobId) {
-      const foundJob = this.jobService.getJobById(jobId);
-      this.job.set(foundJob || null);
+      this.loading.set(true);
+
+      // Load job details
+      this.jobService.getJobById(jobId).subscribe({
+        next: (job) => {
+          this.job.set(job);
+          this.loading.set(false);
+        },
+        error: (error) => {
+          console.error("Error loading job:", error);
+          this.loading.set(false);
+        },
+      });
+
+      // Load proposals for this job
+      this.jobService.getProposalsForJob(jobId).subscribe({
+        next: (proposals) => {
+          this.proposals.set(proposals);
+        },
+        error: (error) => {
+          console.error("Error loading proposals:", error);
+        },
+      });
     }
   }
 
@@ -51,36 +74,59 @@ export class JobDetailComponent implements OnInit {
     if (this.proposalForm.valid && currentJob && user) {
       const formData = this.proposalForm.value;
 
-      this.jobService.submitProposal({
-        jobId: currentJob.id,
-        freelancerId: user.id,
-        freelancerName: user.fullName,
-        proposedAmount: formData.proposedAmount!,
-        deliveryTime: formData.deliveryTime!,
-        coverLetter: formData.coverLetter!,
-        status: ProposalStatus.PENDING,
-      });
+      this.jobService
+        .submitProposal({
+          jobId: currentJob.id,
+          rate: formData.rate!,
+          deliveryTime: formData.deliveryTime!,
+          coverLetter: formData.coverLetter!,
+        })
+        .subscribe({
+          next: (response) => {
+            // Reload proposals to show the new one
+            this.jobService.getProposalsForJob(currentJob.id).subscribe({
+              next: (proposals) => {
+                this.proposals.set(proposals);
+              },
+            });
 
-      // Update the local job data
-      const updatedJob = this.jobService.getJobById(currentJob.id);
-      this.job.set(updatedJob || null);
-
-      this.proposalForm.reset();
-      this.showProposalForm.set(false);
-      alert("Proposal submitted successfully!");
+            this.proposalForm.reset();
+            this.showProposalForm.set(false);
+            alert("Proposal submitted successfully!");
+          },
+          error: (error) => {
+            console.error("Error submitting proposal:", error);
+            alert("Error submitting proposal. Please try again.");
+          },
+        });
     }
   }
 
   acceptProposal(proposalId: string): void {
     const currentJob = this.job();
     if (currentJob) {
-      this.jobService.acceptProposal(currentJob.id, proposalId);
+      this.jobService.acceptProposal(proposalId).subscribe({
+        next: (response) => {
+          // Reload job and proposals to show updated status
+          this.jobService.getJobById(currentJob.id).subscribe({
+            next: (job) => {
+              this.job.set(job);
+            },
+          });
 
-      // Update the local job data
-      const updatedJob = this.jobService.getJobById(currentJob.id);
-      this.job.set(updatedJob || null);
+          this.jobService.getProposalsForJob(currentJob.id).subscribe({
+            next: (proposals) => {
+              this.proposals.set(proposals);
+            },
+          });
 
-      alert("Proposal accepted! The freelancer has been notified.");
+          alert("Proposal accepted! The freelancer has been notified.");
+        },
+        error: (error) => {
+          console.error("Error accepting proposal:", error);
+          alert("Error accepting proposal. Please try again.");
+        },
+      });
     }
   }
 
@@ -106,11 +152,11 @@ export class JobDetailComponent implements OnInit {
 
   hasUserProposed(): boolean {
     const user = this.currentUser();
-    const currentJob = this.job();
+    const currentProposals = this.proposals();
 
-    if (!user || !currentJob) return false;
+    if (!user || !currentProposals) return false;
 
-    return currentJob.proposals.some(
+    return currentProposals.some(
       (proposal) => proposal.freelancerId === user.id
     );
   }
