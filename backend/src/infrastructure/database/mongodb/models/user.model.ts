@@ -25,6 +25,15 @@ const PortfolioItemSchema = new Schema(
   { _id: true }
 );
 
+// Recent activity schema definition
+const RecentActivitySchema = new Schema(
+  {
+    activity: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now },
+  },
+  { _id: true }
+);
+
 export interface IUser extends Document {
   fullName: string;
   email: string;
@@ -46,6 +55,10 @@ export interface IUser extends Document {
     category: string;
     fileUrl?: string;
     createdAt: Date;
+  }[];
+  recentActivity: {
+    activity: string;
+    timestamp: Date;
   }[];
   rating: number;
   completedJobs: number;
@@ -87,6 +100,10 @@ const UserSchema: Schema = new Schema(
     },
     portfolio: {
       type: [PortfolioItemSchema],
+      default: [],
+    },
+    recentActivity: {
+      type: [RecentActivitySchema],
       default: [],
     },
     rating: {

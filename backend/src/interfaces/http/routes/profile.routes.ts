@@ -5,6 +5,8 @@ import {
   removeExperience,
   addPortfolioItem,
   removePortfolioItem,
+  addRecentActivity,
+  removeRecentActivity,
 } from "../controllers/profile.controller";
 import { authenticateToken } from "../middlewares/auth.middleware";
 
@@ -19,5 +21,7 @@ router.post("/:id/experience", addExperience);
 router.delete("/:userId/experience/:experienceId", removeExperience);
 router.post("/:id/portfolio", addPortfolioItem);
 router.delete("/:userId/portfolio/:portfolioItemId", removePortfolioItem);
+router.post("/:id/recent-activity", addRecentActivity);
+router.delete("/:userId/recent-activity/:activityId", removeRecentActivity);
 
 export default router;

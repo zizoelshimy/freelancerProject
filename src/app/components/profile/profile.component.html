@@ -88,12 +88,30 @@
           <div class="card">
             <h3>Recent Activity</h3>
             <div class="activity-list">
+              @if (currentUser() && currentUser()!.recentActivity &&
+              currentUser()!.recentActivity.length > 0) { @for (activity of
+              currentUser()!.recentActivity; track activity.id) {
+              <div class="activity-item">
+                <span class="activity-text">{{ activity.activity }}</span>
+                <span class="activity-date">{{
+                  activity.timestamp | date : "short"
+                }}</span>
+                <button
+                  (click)="removeRecentActivity(activity.id)"
+                  class="remove-btn"
+                  title="Remove activity"
+                >
+                  ×
+                </button>
+              </div>
+              } } @else {
               <div class="activity-item">
                 <span class="activity-text">Joined FreelanceHub</span>
                 <span class="activity-date">{{
                   currentUser()?.createdAt | date : "short"
                 }}</span>
               </div>
+              }
             </div>
           </div>
         </div>
@@ -306,6 +324,33 @@
               [disabled]="!profileForm.valid"
             >
               Update Profile
+            </button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Recent Activity Management</h3>
+          <form
+            [formGroup]="recentActivityForm"
+            (ngSubmit)="addRecentActivity()"
+            class="settings-form"
+          >
+            <div class="form-group">
+              <label class="form-label">Add New Activity</label>
+              <input
+                type="text"
+                formControlName="activity"
+                class="form-input"
+                placeholder="e.g., Completed a new project, Updated portfolio..."
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="!recentActivityForm.valid"
+            >
+              Add Activity
             </button>
           </form>
         </div>

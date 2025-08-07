@@ -2,6 +2,7 @@ import { UserRepository } from "../../../domain/interfaces/repositories/user.rep
 import {
   AddExperienceDTO,
   AddPortfolioItemDTO,
+  AddRecentActivityDTO,
   UpdateUserDTO,
 } from "../../dtos/user.dto";
 import { UserMapper } from "../../mappers/user.mapper";
@@ -133,6 +134,66 @@ export class RemovePortfolioItemUseCase {
     });
     if (!updatedUser) {
       throw new Error("Failed to remove portfolio item");
+    }
+    return UserMapper.toDTO(updatedUser);
+  }
+}
+
+export class AddRecentActivityUseCase {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async execute(userId: string, activityData: AddRecentActivityDTO) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const recentActivity = {
+      id: String(new Date().getTime()),
+      activity: activityData.activity,
+      timestamp: new Date(),
+    };
+
+    // Add the new recent activity to user's recent activity array
+    if (!user.recentActivity) user.recentActivity = [];
+    user.recentActivity.unshift(recentActivity); // Add to beginning to show latest first
+
+    // Keep only the latest 10 activities
+    if (user.recentActivity.length > 10) {
+      user.recentActivity = user.recentActivity.slice(0, 10);
+    }
+
+    // Update the user with the new recent activity
+    const updatedUser = await this.userRepository.update(userId, {
+      recentActivity: user.recentActivity,
+    });
+    if (!updatedUser) {
+      throw new Error("Failed to add recent activity");
+    }
+    return UserMapper.toDTO(updatedUser);
+  }
+}
+
+export class RemoveRecentActivityUseCase {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async execute(userId: string, activityId: string) {
+    const user = await this.userRepository.findById(userId);
+    if (!user || !user.recentActivity) {
+      throw new Error("User or recent activity not found");
+    }
+
+    // Filter out the activity with the given ID
+    const updatedActivity = user.recentActivity.filter(
+      (activity) => activity.id !== activityId
+    );
+
+    // Update the user with the filtered activity array
+    const updatedUser = await this.userRepository.update(userId, {
+      recentActivity: updatedActivity,
+    });
+    if (!updatedUser) {
+      throw new Error("Failed to remove recent activity");
     }
     return UserMapper.toDTO(updatedUser);
   }

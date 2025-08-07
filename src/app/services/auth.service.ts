@@ -31,6 +31,7 @@ export class AuthService {
         skills: parsedUser.skills || [],
         experience: parsedUser.experience || [],
         portfolio: parsedUser.portfolio || [],
+        recentActivity: parsedUser.recentActivity || [],
         rating: parsedUser.rating || 0,
         completedJobs: parsedUser.completedJobs || 0,
       };
@@ -111,6 +112,7 @@ export class AuthService {
       skills: user.skills || [],
       experience: user.experience || [],
       portfolio: user.portfolio || [],
+      recentActivity: user.recentActivity || [],
       rating: user.rating || 0,
       completedJobs: user.completedJobs || 0,
       bio: user.bio || "",
@@ -282,6 +284,61 @@ export class AuthService {
         }),
         catchError((error) => {
           console.error("Remove portfolio item error:", error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  addRecentActivity(activityData: { activity: string }): Observable<any> {
+    const currentUser = this.currentUserSignal();
+    if (!currentUser) {
+      return throwError(() => new Error("User not authenticated"));
+    }
+
+    const headers = {
+      Authorization: `Bearer ${this.getToken()}`,
+      "Content-Type": "application/json",
+    };
+
+    return this.http
+      .post(
+        `${this.apiUrl}/profile/${currentUser.id}/recent-activity`,
+        activityData,
+        { headers }
+      )
+      .pipe(
+        tap((response: any) => {
+          this.setCurrentUser(response, this.getToken()!);
+        }),
+        catchError((error) => {
+          console.error("Add recent activity error:", error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  removeRecentActivity(activityId: string): Observable<any> {
+    const currentUser = this.currentUserSignal();
+    if (!currentUser) {
+      return throwError(() => new Error("User not authenticated"));
+    }
+
+    const headers = {
+      Authorization: `Bearer ${this.getToken()}`,
+      "Content-Type": "application/json",
+    };
+
+    return this.http
+      .delete(
+        `${this.apiUrl}/profile/${currentUser.id}/recent-activity/${activityId}`,
+        { headers }
+      )
+      .pipe(
+        tap((response: any) => {
+          this.setCurrentUser(response, this.getToken()!);
+        }),
+        catchError((error) => {
+          console.error("Remove recent activity error:", error);
           return throwError(() => error);
         })
       );

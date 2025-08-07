@@ -33,6 +33,11 @@ export class UserMapper {
         fileUrl: item.fileUrl,
         createdAt: item.createdAt?.toISOString() || "",
       })),
+      recentActivity: (user.recentActivity || []).map((activity) => ({
+        id: activity.id || String(new Date().getTime()),
+        activity: activity.activity,
+        timestamp: activity.timestamp?.toISOString() || "",
+      })),
       rating: user.rating || 0,
       completedJobs: user.completedJobs || 0,
       createdAt: user.createdAt?.toISOString() || "",

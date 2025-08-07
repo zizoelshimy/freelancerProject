@@ -2,8 +2,10 @@ import { Request, Response } from "express";
 import {
   AddExperienceUseCase,
   AddPortfolioItemUseCase,
+  AddRecentActivityUseCase,
   RemoveExperienceUseCase,
   RemovePortfolioItemUseCase,
+  RemoveRecentActivityUseCase,
   UpdateProfileUseCase,
 } from "../../../application/use-cases/user/profile-operations.use-case";
 import { MongoUserRepository } from "../../../infrastructure/repositories/user.repository";
@@ -100,6 +102,50 @@ export const removePortfolioItem = async (req: Request, res: Response) => {
     const updatedUser = await removePortfolioItemUseCase.execute(
       userId,
       portfolioItemId
+    );
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ error: (err as Error).message });
+  }
+};
+
+// Add recent activity to user profile
+export const addRecentActivity = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const activityData = req.body;
+
+    // Use repository pattern and use case
+    const userRepository = new MongoUserRepository();
+    const addRecentActivityUseCase = new AddRecentActivityUseCase(
+      userRepository
+    );
+
+    const updatedUser = await addRecentActivityUseCase.execute(
+      userId,
+      activityData
+    );
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ error: (err as Error).message });
+  }
+};
+
+// Remove recent activity from user profile
+export const removeRecentActivity = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const activityId = req.params.activityId;
+
+    // Use repository pattern and use case
+    const userRepository = new MongoUserRepository();
+    const removeRecentActivityUseCase = new RemoveRecentActivityUseCase(
+      userRepository
+    );
+
+    const updatedUser = await removeRecentActivityUseCase.execute(
+      userId,
+      activityId
     );
     res.json(updatedUser);
   } catch (err) {

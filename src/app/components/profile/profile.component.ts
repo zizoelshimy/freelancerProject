@@ -41,6 +41,10 @@ export class ProfileComponent {
     fileUrl: [""],
   });
 
+  recentActivityForm = this.fb.group({
+    activity: ["", [Validators.required]],
+  });
+
   setActiveTab(tab: string): void {
     this.activeTab.set(tab);
   }
@@ -137,6 +141,38 @@ export class ProfileComponent {
       error: (error) => {
         console.error("Error removing portfolio item:", error);
         alert("Error removing portfolio item. Please try again.");
+      },
+    });
+  }
+
+  addRecentActivity(): void {
+    if (this.recentActivityForm.valid) {
+      const formData = this.recentActivityForm.value;
+      const activityData = {
+        activity: formData.activity!,
+      };
+
+      this.authService.addRecentActivity(activityData).subscribe({
+        next: (response) => {
+          this.recentActivityForm.reset();
+          alert("Recent activity added successfully!");
+        },
+        error: (error) => {
+          console.error("Error adding recent activity:", error);
+          alert("Error adding recent activity. Please try again.");
+        },
+      });
+    }
+  }
+
+  removeRecentActivity(id: string): void {
+    this.authService.removeRecentActivity(id).subscribe({
+      next: (response) => {
+        alert("Recent activity removed successfully!");
+      },
+      error: (error) => {
+        console.error("Error removing recent activity:", error);
+        alert("Error removing recent activity. Please try again.");
       },
     });
   }

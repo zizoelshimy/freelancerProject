@@ -18,6 +18,12 @@ export interface PortfolioItem {
   createdAt: Date;
 }
 
+export interface RecentActivity {
+  id?: string;
+  activity: string;
+  timestamp: Date;
+}
+
 export interface User {
   id?: string;
   fullName: string;
@@ -28,6 +34,7 @@ export interface User {
   skills?: string[];
   experience?: Experience[];
   portfolio?: PortfolioItem[];
+  recentActivity?: RecentActivity[];
   rating?: number;
   completedJobs?: number;
   createdAt?: Date;

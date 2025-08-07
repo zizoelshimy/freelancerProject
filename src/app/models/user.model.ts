@@ -7,6 +7,7 @@ export interface User {
   skills: string[];
   experience: WorkExperience[];
   portfolio: PortfolioItem[];
+  recentActivity: RecentActivity[];
   rating: number;
   completedJobs: number;
   createdAt: Date;
@@ -30,4 +31,10 @@ export interface PortfolioItem {
   fileUrl?: string;
   category: string;
   createdAt: Date;
+}
+
+export interface RecentActivity {
+  id: string;
+  activity: string;
+  timestamp: Date;
 }

@@ -34,6 +34,11 @@ export interface UserResponseDTO {
     fileUrl?: string;
     createdAt: string;
   }[];
+  recentActivity: {
+    id: string;
+    activity: string;
+    timestamp: string;
+  }[];
   rating: number;
   completedJobs: number;
 }
@@ -70,4 +75,9 @@ export interface AddPortfolioItemDTO {
   description: string;
   category: string;
   fileUrl?: string;
+}
+
+// DTO for adding recent activity
+export interface AddRecentActivityDTO {
+  activity: string;
 }
